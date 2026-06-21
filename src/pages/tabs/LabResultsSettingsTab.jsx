@@ -863,8 +863,10 @@ function CheckupSettingsTab() {
             <RichTextEditor
               value={settings?.checkupPdf?.doctorDetails || ''}
               onChange={(html) => handleUpdate({ checkupPdf: { doctorDetails: html } })}
-              placeholder="e.g. Dr. John Smith&#10;MBBS, MD"
+              placeholder="e.g. Dr. John Smith, MBBS, MD"
               height="100px"
+              toolbar={[['bold', 'italic', 'underline'], [{ 'align': [] }], ['clean']]}
+              formats={['bold', 'italic', 'underline', 'align']}
             />
           </Card.Body>
         </Card>
