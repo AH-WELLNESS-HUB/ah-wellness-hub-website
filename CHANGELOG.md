@@ -1,3 +1,8 @@
+## [v1.7.1] - 2026-06-21
+
+### Bug Fixes
+- add toolbar prop to RichTextEditor, restrict doctorDetails to minimal toolbar
+
 ## [v1.7.0] - 2026-06-21
 
 ### Features
