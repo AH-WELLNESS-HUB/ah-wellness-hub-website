@@ -310,6 +310,7 @@ export const DEFAULT_SETTINGS = {
       thankYouPrescription: '',
     },
     eSign: '',
+    doctorDetails: '',
     defaultValidDays: 30,
     defaultDoctorFees: 0,
     appointmentNotify: {
