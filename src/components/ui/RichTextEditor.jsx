@@ -17,6 +17,25 @@ import { Form } from 'react-bootstrap'
  * - Clean formatting button
  */
 
+const FULL_TOOLBAR = [
+  [{ 'header': [1, 2, 3, false] }],
+  ['bold', 'italic', 'underline', 'strike'],
+  [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+  [{ 'align': [] }],
+  ['link'],
+  ['blockquote', 'code-block'],
+  ['clean']
+]
+
+const FULL_FORMATS = [
+  'header',
+  'bold', 'italic', 'underline', 'strike',
+  'list',
+  'align',
+  'link',
+  'blockquote', 'code-block'
+]
+
 const RichTextEditor = ({
   value,
   onChange,
@@ -25,34 +44,15 @@ const RichTextEditor = ({
   label,
   required = false,
   height = '200px',
-  id
+  id,
+  toolbar = FULL_TOOLBAR,
+  formats = FULL_FORMATS,
 }) => {
   const editorRef = useRef(null)
   const quillRef = useRef(null)
   const isUpdating = useRef(false)
 
-  // Custom toolbar configuration
-  const modules = useMemo(() => ({
-    toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      [{ 'align': [] }],
-      ['link'],
-      ['blockquote', 'code-block'],
-      ['clean']
-    ],
-  }), [])
-
-  // Formats allowed in the editor
-  const formats = [
-    'header',
-    'bold', 'italic', 'underline', 'strike',
-    'list',
-    'align',
-    'link',
-    'blockquote', 'code-block'
-  ]
+  const modules = useMemo(() => ({ toolbar }), [])
 
   // Initialize Quill only once
   useEffect(() => {
@@ -60,7 +60,7 @@ const RichTextEditor = ({
       quillRef.current = new Quill(editorRef.current, {
         theme: 'snow',
         modules,
-        formats,
+        formats,  // uses prop
         placeholder
       })
 

@@ -482,6 +482,7 @@ function CheckupDetail() {
         .bill-content.pdf-clone .date-signature-row p { font-size: ${Math.round(rxBaseFontPx * 0.85)}px !important; }
         .bill-content.pdf-clone .esign-img { height: ${Math.round(rxBaseFontPx * 3.5)}px !important; }
         .bill-content.pdf-clone .doctor-details-inline { font-size: ${Math.round(rxBaseFontPx * 0.85)}px !important; }
+        .bill-content .doctor-details-inline { padding: 0 !important; min-height: 0 !important; }
         .bill-content .doctor-details-inline p { margin: 0 !important; padding: 0 !important; }
         .bill-content .doctor-details-inline * { font-size: inherit !important; }
 
@@ -1287,8 +1288,8 @@ function CheckupDetail() {
                         {settings?.checkupPdf?.doctorDetails ? (
                           <div
                             dangerouslySetInnerHTML={{ __html: settings.checkupPdf.doctorDetails }}
-                            style={{ fontSize: 'clamp(0.55rem, 1.4vw, 0.65rem)', lineHeight: 1.3, marginBottom: 0 }}
-                            className="doctor-details-inline"
+                            style={{ fontSize: 'clamp(0.55rem, 1.4vw, 0.65rem)', lineHeight: 1.3, marginBottom: 0, padding: 0, minHeight: 0 }}
+                            className="ql-editor doctor-details-inline"
                           />
                         ) : (
                           <p style={{ fontSize: 'clamp(0.55rem, 1.4vw, 0.65rem)', marginBottom: 0 }}>Signature</p>
