@@ -481,6 +481,9 @@ function CheckupDetail() {
         .bill-content.pdf-clone .sig-line { width: 100px !important; }
         .bill-content.pdf-clone .date-signature-row p { font-size: ${Math.round(rxBaseFontPx * 0.85)}px !important; }
         .bill-content.pdf-clone .esign-img { height: ${Math.round(rxBaseFontPx * 3.5)}px !important; }
+        .bill-content.pdf-clone .doctor-details-inline { font-size: ${Math.round(rxBaseFontPx * 0.85)}px !important; }
+        .bill-content .doctor-details-inline p { margin: 0 !important; padding: 0 !important; }
+        .bill-content .doctor-details-inline * { font-size: inherit !important; }
 
         /* Footer */
         .bill-content.pdf-clone .footer-section { font-size: ${Math.round(rxBaseFontPx * 0.75)}px !important; }
@@ -1281,7 +1284,15 @@ function CheckupDetail() {
                           <img src={settings.checkupPdf.eSign} alt="Signature" className="esign-img" style={{ height: 'clamp(30px, 6vw, 50px)', objectFit: 'contain', marginBottom: '0.15rem', display: 'block', marginLeft: 'auto', marginRight: 'auto' }} />
                         )}
                         <div className="sig-line" style={{ borderTop: '1px solid #64748b', width: 'clamp(80px, 15vw, 120px)', marginBottom: '0.25rem', marginLeft: 'auto', marginRight: 'auto' }} />
-                        <p style={{ fontSize: 'clamp(0.55rem, 1.4vw, 0.65rem)', marginBottom: 0 }}>Signature</p>
+                        {settings?.checkupPdf?.doctorDetails ? (
+                          <div
+                            dangerouslySetInnerHTML={{ __html: settings.checkupPdf.doctorDetails }}
+                            style={{ fontSize: 'clamp(0.55rem, 1.4vw, 0.65rem)', lineHeight: 1.3, marginBottom: 0 }}
+                            className="doctor-details-inline"
+                          />
+                        ) : (
+                          <p style={{ fontSize: 'clamp(0.55rem, 1.4vw, 0.65rem)', marginBottom: 0 }}>Signature</p>
+                        )}
                       </div>
                     </div>
                   </>,

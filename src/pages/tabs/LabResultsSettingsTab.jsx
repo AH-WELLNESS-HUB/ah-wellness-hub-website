@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { Row, Col, Card, Form, Badge } from 'react-bootstrap'
-import { FaPlus, FaTrash, FaFilePdf, FaStethoscope, FaVial, FaChevronDown, FaChevronRight, FaEdit, FaSave, FaTimes, FaAddressCard, FaSignature } from 'react-icons/fa'
+import { FaPlus, FaTrash, FaFilePdf, FaStethoscope, FaVial, FaChevronDown, FaChevronRight, FaEdit, FaSave, FaTimes, FaAddressCard, FaSignature, FaUserMd } from 'react-icons/fa'
 import { updateSettings } from '../../store/settingsSlice'
 import { useSettings } from '../../hooks/useSettings'
 import { useNotification } from '../../context'
 import LoadingSpinner from '../../components/common/LoadingSpinner'
+import RichTextEditor from '../../components/ui/RichTextEditor'
 
 function CheckupSettingsTab() {
   const dispatch = useDispatch()
@@ -847,6 +848,24 @@ function CheckupSettingsTab() {
                 </button>
               )}
             </div>
+          </Card.Body>
+        </Card>
+      </Col>
+
+      {/* Doctor Details */}
+      <Col xs={12}>
+        <Card className="shadow-sm border-0">
+          <Card.Body className="py-2 px-3">
+            <small className="fw-bold text-muted d-block mb-2"><FaUserMd className="me-2" style={{ fontSize: '0.7rem' }} />DOCTOR DETAILS</small>
+            <Form.Text className="text-muted d-block mb-2" style={{ fontSize: '0.65rem' }}>
+              Shown below the signature line on prescriptions. Supports bold, italic, font size, etc.
+            </Form.Text>
+            <RichTextEditor
+              value={settings?.checkupPdf?.doctorDetails || ''}
+              onChange={(html) => handleUpdate({ checkupPdf: { doctorDetails: html } })}
+              placeholder="e.g. Dr. John Smith&#10;MBBS, MD"
+              height="100px"
+            />
           </Card.Body>
         </Card>
       </Col>
