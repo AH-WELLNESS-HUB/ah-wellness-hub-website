@@ -1,3 +1,8 @@
+## [v1.7.6] - 2026-08-15
+
+### Bug Fixes
+- import updateUser in UserRequestsTab (approving update requests crashed)
+
 ## [v1.7.5] - 2026-08-15
 
 ## [v1.7.4] - 2026-08-15
