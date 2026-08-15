@@ -1036,6 +1036,12 @@ function CheckupDetail() {
                             </tr>
                           ) : null
                         })}
+                        {parseFloat(checkup.doctorFees) > 0 && (
+                          <tr>
+                            <td style={{ padding: 'clamp(0.2rem, 0.8vw, 0.4rem) clamp(0.3rem, 1vw, 0.6rem)', border: 'none', textAlign: 'left' }}>Consultant Fee</td>
+                            <td style={{ padding: 'clamp(0.2rem, 0.8vw, 0.4rem) clamp(0.3rem, 1vw, 0.6rem)', border: 'none', textAlign: 'right' }}>Rs. {parseFloat(checkup.doctorFees).toFixed(2)}</td>
+                          </tr>
+                        )}
                         <tr style={{ color: '#0891B2', fontWeight: 'bold', borderTop: '1px solid #0891B2' }}>
                           <td style={{ padding: 'clamp(0.35rem, 1vw, 0.6rem) clamp(0.3rem, 1vw, 0.6rem)', border: 'none', textAlign: 'left' }}>Total Amount</td>
                           <td style={{ padding: 'clamp(0.35rem, 1vw, 0.6rem) clamp(0.3rem, 1vw, 0.6rem)', border: 'none', textAlign: 'right' }}>Rs. {checkup.total.toFixed(2)}</td>
