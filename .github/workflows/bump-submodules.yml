@@ -1,0 +1,60 @@
+name: Bump submodules to latest
+
+# Keeps the ci/ and docs/ submodule pointers on this repo always at the latest
+# commit of each submodule's tracked branch (main).
+#
+# Triggers:
+#   - repository_dispatch (submodule-updated): fired instantly by the child repos
+#     (ah-wellness-hub-ci-cd, ah-wellness-hub-docs) when they push to main.
+#   - schedule: safety-net poll (every 6h) in case a dispatch is missed.
+#   - workflow_dispatch: manual run.
+
+on:
+  repository_dispatch:
+    types: [submodule-updated]
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bump-submodules
+  cancel-in-progress: true
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+          # persisted credentials are reused for submodule fetches below
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Update submodules to latest remote (main)
+        id: update
+        run: |
+          git submodule update --remote --recursive
+          if git diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Submodules already at latest."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Submodule pointer changes:"
+            git status --short
+          fi
+
+      - name: Commit & push pointer bump
+        if: steps.update.outputs.changed == 'true'
+        run: |
+          git add -A
+          git commit -m "chore: bump submodules to latest [skip ci]"
+          git push
