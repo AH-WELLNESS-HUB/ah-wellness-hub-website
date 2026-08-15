@@ -1,3 +1,12 @@
+## [v1.8.0] - 2026-08-15
+
+### Features
+- make consultant fee on invoice configurable (label + visibility)
+- add consultant fee line item to invoice
+
+### Bug Fixes
+- allow checkup creation without tests when Own Tests is off
+
 ## [v1.7.7] - 2026-08-15
 
 ## [v1.7.6] - 2026-08-15
