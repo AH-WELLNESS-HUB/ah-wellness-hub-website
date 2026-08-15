@@ -6,6 +6,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 AH Wellness Hub Blood Lab Manager is a complete Point of Sale (POS) system for blood testing laboratories. It provides comprehensive management of patients, blood tests, checkups/billing, medicines, user management with activity tracking, and generates professional PDF invoices and prescriptions. The application features comprehensive role-based access control (RBAC) with superadmin, admin, maintainer, editor, and user roles.
 
+## Organization & Repositories
+
+This app is part of the **AH-WELLNESS-HUB** GitHub organization and consumes two sibling repositories as **git submodules**:
+
+| Repo | Purpose | Mounted at |
+|------|---------|-----------|
+| `ah-wellness-hub-website` | This React SPA | — |
+| `ah-wellness-hub-ci-cd` | Reusable CI/CD release scripts | `ci/` |
+| `ah-wellness-hub-docs` | MkDocs documentation site | `docs/` |
+
+- Clone with submodules: `git clone --recurse-submodules ...` (or `git submodule update --init --recursive`).
+- `ci/` holds scripts the deploy workflow calls at runtime (`ci/scripts/prepare-release.sh`, `ci/scripts/notify-firestore.sh`). The workflow YAML itself must stay in `.github/workflows/` — GitHub Actions cannot run workflows from a submodule.
+- `docs/` is the source for the documentation site.
+
+## Documentation
+
+📖 **Live docs:** https://ah-wellness-hub.github.io/ah-wellness-hub-docs/ (MkDocs Material, with Mermaid UML diagrams — architecture, data model, workflows, CI/CD).
+
+When you implement a feature or change architecture, **update the docs** in the `docs/` submodule (then bump the submodule pointer here). Keep this `CLAUDE.md` and the docs site in sync.
+
 ## Development Commands
 
 - **Start dev server**: `npm run dev` - Starts Vite dev server with HMR at http://localhost:5173
@@ -23,8 +43,10 @@ AH Wellness Hub Blood Lab Manager is a complete Point of Sale (POS) system for b
 - **Icons**: React Icons 5.5.0
 - **PDF Generation**: jsPDF 3.0.3 + html2canvas 1.4.1
 - **Charts**: Recharts 2.15.0
-- **Backend**: Firebase (Authentication, Firestore, Hosting)
+- **Backend**: Firebase (Authentication, Firestore, Realtime Database, Hosting)
 - **Language**: JavaScript (JSX)
+- **CI/CD**: GitHub Actions → Firebase Hosting; release logic in the `ci/` submodule
+- **Docs**: MkDocs Material → GitHub Pages (`docs/` submodule)
 
 ## Project Structure
 
@@ -234,6 +256,15 @@ The application is **highly optimized for mobile devices** with responsive break
 - **DO NOT** include Claude Code signature in commit messages
 - Keep commit messages concise and descriptive
 - Format: `type: description` (e.g., `feat: add responsive tables`, `fix: resolve mobile layout issues`)
+- **Commit type drives automatic versioning** on merge to `main`: `feat!:`/`BREAKING CHANGE` → major, `feat:` → minor, `fix:`/`refactor:`/`chore:` → patch. The CI generates the version bump, `CHANGELOG.md`, tag, and GitHub Release.
+
+## Deployment & CI/CD
+
+- **Trigger**: push to `main` runs `.github/workflows/firebase-hosting-merge.yml`.
+- **Steps**: checkout (with submodules) → `ci/scripts/prepare-release.sh` (bump + changelog + tag) → `npm run build` → deploy to Firebase Hosting (live) → push tag → GitHub Release → `ci/scripts/notify-firestore.sh` (writes a `system_release` notification).
+- **PRs**: `firebase-hosting-pull-request.yml` runs a build check (no deploy).
+- **Live app**: https://ah-wellness-hub.web.app
+- Reusable release logic lives in the `ci/` submodule; see the [Deployment docs](https://ah-wellness-hub.github.io/ah-wellness-hub-docs/deployment/).
 
 ## Key Workflows
 
@@ -243,13 +274,15 @@ The application is **highly optimized for mobile devices** with responsive break
    - Or create new patient inline
 2. **Step 2**: Configure checkup details
    - Select multiple tests (with prices)
+   - **Own Tests** toggle: when OFF (outside/consultation-only), no test is required and the total is just the consultant fee; when ON, at least one test may be required and the total is tests + consultant fee
+   - **Doctor/Consultant fee** (`doctorFees`): added into `total`; shown on the invoice as a configurable "Consultant Fee" line (label + visibility via Settings → PDF)
    - Add medicines with dosages
    - Apply discount percentage
    - Auto-calculate commission (test percentage)
    - Add optional notes
-3. Save creates checkup with auto-generated bill number
+3. Save creates checkup with auto-generated bill number (`total` = tests + consultant fee)
 4. Navigate to checkup detail page
-5. Generate PDF invoice or prescription
+5. Generate PDF invoice or prescription (Consultant Fee line included in the PDF)
 
 ### PDF Generation
 Both invoice and prescription share the same branded template (header with dual logos, company name, bill #, date/time).
