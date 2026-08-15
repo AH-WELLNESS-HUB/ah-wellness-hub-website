@@ -675,6 +675,40 @@ function CheckupSettingsTab() {
                 </Form.Text>
               </Col>
             </Row>
+            <div style={{ borderTop: '1px solid #e2e8f0', margin: '6px 0' }} />
+            <Row className="align-items-end g-1">
+              <Col xs={12} md={3} className="mb-2 mb-md-0">
+                <Form.Check
+                  type="switch"
+                  id="showConsultantFee"
+                  label={<span style={{ fontSize: '0.72rem' }}>Show Consultant Fee on Invoice</span>}
+                  checked={settings?.checkupPdf?.showConsultantFee !== false}
+                  onChange={(e) => handleUpdate({ checkupPdf: { showConsultantFee: e.target.checked } })}
+                />
+              </Col>
+              <Col xs={6} md={3}>
+                <Form.Group>
+                  <Form.Label style={{ fontSize: '0.68rem', color: '#64748b' }}>Consultant Fee Label</Form.Label>
+                  <Form.Control
+                    size="sm"
+                    type="text"
+                    defaultValue={settings?.checkupPdf?.consultantFeeLabel || 'Consultant Fee'}
+                    onBlur={(e) => {
+                      const val = e.target.value.trim()
+                      if (val && val !== (settings?.checkupPdf?.consultantFeeLabel || 'Consultant Fee')) {
+                        handleUpdate({ checkupPdf: { consultantFeeLabel: val } })
+                      }
+                    }}
+                    style={{ fontSize: '0.78rem' }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={6} md={6}>
+                <Form.Text className="text-muted" style={{ fontSize: '0.6rem' }}>
+                  Label for the doctor/consultant fee line on the invoice. Only shows when a fee is charged.
+                </Form.Text>
+              </Col>
+            </Row>
           </Card.Body>
         </Card>
       </Col>

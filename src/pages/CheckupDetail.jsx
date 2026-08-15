@@ -1036,9 +1036,9 @@ function CheckupDetail() {
                             </tr>
                           ) : null
                         })}
-                        {parseFloat(checkup.doctorFees) > 0 && (
+                        {settings?.checkupPdf?.showConsultantFee !== false && parseFloat(checkup.doctorFees) > 0 && (
                           <tr>
-                            <td style={{ padding: 'clamp(0.2rem, 0.8vw, 0.4rem) clamp(0.3rem, 1vw, 0.6rem)', border: 'none', textAlign: 'left' }}>Consultant Fee</td>
+                            <td style={{ padding: 'clamp(0.2rem, 0.8vw, 0.4rem) clamp(0.3rem, 1vw, 0.6rem)', border: 'none', textAlign: 'left', fontWeight: 'bold' }}>{settings?.checkupPdf?.consultantFeeLabel || 'Consultant Fee'}</td>
                             <td style={{ padding: 'clamp(0.2rem, 0.8vw, 0.4rem) clamp(0.3rem, 1vw, 0.6rem)', border: 'none', textAlign: 'right' }}>Rs. {parseFloat(checkup.doctorFees).toFixed(2)}</td>
                           </tr>
                         )}
