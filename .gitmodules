@@ -1,0 +1,3 @@
+[submodule "ci"]
+	path = ci
+	url = git@github.com:AH-WELLNESS-HUB/ah-wellness-hub-ci-cd.git

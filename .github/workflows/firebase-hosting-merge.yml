@@ -16,6 +16,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          submodules: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
@@ -29,68 +30,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Bump version
+      - name: Prepare release (bump version + changelog)
         id: version
-        run: |
-          # Get current version from package.json
-          CURRENT=$(node -p "require('./package.json').version")
-          echo "Current version: v${CURRENT}"
-
-          # Determine bump type from commit messages since last tag
-          PREV_TAG=$(git tag --sort=-v:refname | head -1)
-          if [ -n "$PREV_TAG" ]; then
-            COMMITS=$(git log ${PREV_TAG}..HEAD --pretty=format:"%s" --no-merges)
-          else
-            COMMITS=$(git log --pretty=format:"%s" --no-merges)
-          fi
-
-          # Detect bump type:
-          #   BREAKING CHANGE or feat!: → major
-          #   feat: → minor
-          #   fix:, refactor:, chore:, etc. → patch
-          BUMP="patch"
-          if echo "$COMMITS" | grep -qiE "^feat!:|BREAKING CHANGE"; then
-            BUMP="major"
-          elif echo "$COMMITS" | grep -qiE "^feat(\(.+\))?:"; then
-            BUMP="minor"
-          fi
-
-          echo "Bump type: ${BUMP}"
-          NEW=$(npm version ${BUMP} --no-git-tag-version)
-          echo "New version: ${NEW}"
-          echo "version=${NEW}" >> $GITHUB_OUTPUT
-          echo "bump=${BUMP}" >> $GITHUB_OUTPUT
-
-          # Generate CHANGELOG.md entry
-          DATE=$(date +%Y-%m-%d)
-          FEATURES=$(echo "$COMMITS" | grep -E "^feat(\(.+\))?:" | sed -E 's/^feat(\([^)]+\))?: /- /' || true)
-          FIXES=$(echo "$COMMITS" | grep -E "^fix(\(.+\))?:" | sed -E 's/^fix(\([^)]+\))?: /- /' || true)
-          REFACTORS=$(echo "$COMMITS" | grep -E "^refactor(\(.+\))?:" | sed -E 's/^refactor(\([^)]+\))?: /- /' || true)
-
-          CL_ENTRY="## [${NEW}] - ${DATE}"
-          if [ -n "$FEATURES" ]; then
-            CL_ENTRY="${CL_ENTRY}"$'\n\n'"### Features"$'\n'"${FEATURES}"
-          fi
-          if [ -n "$FIXES" ]; then
-            CL_ENTRY="${CL_ENTRY}"$'\n\n'"### Bug Fixes"$'\n'"${FIXES}"
-          fi
-          if [ -n "$REFACTORS" ]; then
-            CL_ENTRY="${CL_ENTRY}"$'\n\n'"### Improvements"$'\n'"${REFACTORS}"
-          fi
-
-          if [ -f CHANGELOG.md ]; then
-            TMP=$(mktemp)
-            printf '%s\n\n' "${CL_ENTRY}" > "$TMP"
-            cat CHANGELOG.md >> "$TMP"
-            mv "$TMP" CHANGELOG.md
-          else
-            printf '# Changelog\n\nAll notable changes to this project will be documented in this file.\n\n%s\n' "${CL_ENTRY}" > CHANGELOG.md
-          fi
-
-          # Commit the version bump + changelog
-          git add package.json CHANGELOG.md
-          git commit -m "chore: bump version to ${NEW} [${BUMP}]"
-          git tag "${NEW}"
+        run: bash ci/scripts/prepare-release.sh
 
       - name: Install dependencies
         run: npm ci
@@ -157,52 +99,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Notify release in Firestore
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          PROJECT_ID="ah-wellness-hub"
-
-          # Get access token from service account using Node.js crypto (no deps needed)
-          ACCESS_TOKEN=$(node -e "
-            const crypto = require('crypto');
-            const sa = JSON.parse(process.env.SA_KEY);
-            const now = Math.floor(Date.now() / 1000);
-            const header = Buffer.from(JSON.stringify({alg:'RS256',typ:'JWT'})).toString('base64url');
-            const payload = Buffer.from(JSON.stringify({
-              iss: sa.client_email,
-              scope: 'https://www.googleapis.com/auth/datastore',
-              aud: 'https://oauth2.googleapis.com/token',
-              iat: now,
-              exp: now + 3600
-            })).toString('base64url');
-            const sig = crypto.sign('RSA-SHA256', Buffer.from(header+'.'+payload), sa.private_key).toString('base64url');
-            const jwt = header+'.'+payload+'.'+sig;
-            fetch('https://oauth2.googleapis.com/token', {
-              method:'POST',
-              headers:{'Content-Type':'application/x-www-form-urlencoded'},
-              body:'grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion='+jwt
-            }).then(r=>r.json()).then(d=>console.log(d.access_token));
-          ")
-
-          # Write notification to Firestore via REST API
-          curl -sf -X POST \
-            "https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/notifications" \
-            -H "Authorization: Bearer ${ACCESS_TOKEN}" \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"fields\": {
-                \"type\": {\"stringValue\": \"system_release\"},
-                \"recipientId\": {\"stringValue\": \"all\"},
-                \"title\": {\"stringValue\": \"New Release Available\"},
-                \"message\": {\"stringValue\": \"Version ${VERSION} has been published. Please refresh your browser to get the latest updates.\"},
-                \"read\": {\"booleanValue\": false},
-                \"readBy\": {\"arrayValue\": {\"values\": []}},
-                \"createdAt\": {\"timestampValue\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"},
-                \"metadata\": {\"mapValue\": {\"fields\": {\"version\": {\"stringValue\": \"${VERSION}\"}}}}
-              }
-            }"
-          echo "Release notification created for ${VERSION}"
+        run: bash ci/scripts/notify-firestore.sh
         env:
           SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_AH_WELLNESS_HUB }}
+          VERSION: ${{ steps.version.outputs.version }}
+          PROJECT_ID: ah-wellness-hub
 
       - name: Create deployment summary
         run: |
