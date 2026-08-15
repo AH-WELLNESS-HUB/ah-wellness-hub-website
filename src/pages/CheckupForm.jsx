@@ -208,7 +208,7 @@ function CheckupForm() {
       return
     }
 
-    if (isFieldRequired('checkups', 'tests', true) && formData.tests.length === 0) {
+    if (formData.ownTests && isFieldRequired('checkups', 'tests', true) && formData.tests.length === 0) {
       showError('Please select at least one test')
       return
     }
