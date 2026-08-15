@@ -9,7 +9,7 @@ import {
   selectAllUserChangeRequests
 } from '../../store/userChangeRequestsSlice'
 import { registerUser } from '../../store/authSlice'
-import { fetchUsers } from '../../store/usersSlice'
+import { fetchUsers, updateUser } from '../../store/usersSlice'
 import { useNotification } from '../../context'
 import { generateRandomPassword, copyToClipboard } from '../../utils/passwordUtils'
 import { notifyRoleRequestApproved, notifyRoleRequestRejected } from '../../services/notificationService'
