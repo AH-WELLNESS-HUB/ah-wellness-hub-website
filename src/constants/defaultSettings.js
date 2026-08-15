@@ -313,6 +313,8 @@ export const DEFAULT_SETTINGS = {
     doctorDetails: '',
     defaultValidDays: 30,
     defaultDoctorFees: 0,
+    showConsultantFee: true,
+    consultantFeeLabel: 'Consultant Fee',
     appointmentNotify: {
       whatsapp: { enabled: false, number: '' },
       email: { enabled: false, address: '' },
