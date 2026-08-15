@@ -9,6 +9,11 @@ permissions:
   contents: write
   pull-requests: write
 
+# Serialize deploys so a concurrent push can't race the version-commit push
+concurrency:
+  group: deploy-main
+  cancel-in-progress: false
+
 jobs:
   build_deploy_release:
     runs-on: ubuntu-latest
@@ -66,7 +71,10 @@ jobs:
 
       - name: Push version commit and tag
         run: |
-          git push origin main
+          # Rebase in case main advanced during the run (e.g. a submodule bump),
+          # so the version commit push is a clean fast-forward.
+          git pull --rebase origin main
+          git push origin HEAD:main
           git push origin ${{ steps.version.outputs.version }}
 
       - name: Generate release notes
