@@ -71,9 +71,11 @@ jobs:
 
       - name: Push version commit and tag
         run: |
-          # Rebase in case main advanced during the run (e.g. a submodule bump),
-          # so the version commit push is a clean fast-forward.
-          git pull --rebase origin main
+          # main may have advanced during the run (e.g. a submodule bump commit);
+          # rebase the version commit on top before pushing. --autostash handles any
+          # dirty working tree left by the build so the rebase doesn't refuse.
+          git fetch origin main
+          git rebase --autostash origin/main
           git push origin HEAD:main
           git push origin ${{ steps.version.outputs.version }}
 
