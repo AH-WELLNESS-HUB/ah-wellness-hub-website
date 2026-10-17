@@ -6,3 +6,7 @@
 	path = docs
 	url = git@github.com:AH-WELLNESS-HUB/ah-wellness-hub-docs.git
 	branch = main
+[submodule "src/shared/hooks"]
+	path = src/shared/hooks
+	url = git@github.com:ThanuMahee12/react-hooks-kit.git
+	branch = main
