@@ -1,3 +1,8 @@
+## [v1.8.1] - 2026-11-14
+
+### Improvements
+- wire EnhancedCRUDTable to shared usePagination hook
+
 ## [v1.8.0] - 2026-08-15
 
 ### Features
