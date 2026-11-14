@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import { useForm } from './useForm';
-import { useModal } from './useModal';
+import { useForm } from '../shared/hooks/useForm';
+import { useModal } from '../shared/hooks/useModal';
 import { useNotification } from '../context';
 
 /**
