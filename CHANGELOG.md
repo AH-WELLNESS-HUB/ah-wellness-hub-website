@@ -1,3 +1,8 @@
+## [v1.8.4] - 2026-11-14
+
+### Improvements
+- migrate useForm/useModal/useResponsive to shared react-hooks-kit submodule
+
 ## [v1.8.3] - 2026-11-14
 
 ## [v1.8.2] - 2026-11-14
