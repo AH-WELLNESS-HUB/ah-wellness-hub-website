@@ -4,6 +4,7 @@ import { Card, Form, Pagination, Dropdown } from 'react-bootstrap';
 import { FaEdit, FaTrash, FaSearch, FaSortUp, FaSortDown, FaSort, FaSortAmountDown, FaTimes } from 'react-icons/fa';
 import LoadingSpinner from '../common/LoadingSpinner';
 import ErrorAlert from '../common/ErrorAlert';
+import { usePagination } from '../../shared/hooks/usePagination';
 
 const EnhancedCRUDTable = React.memo(({
   data = [],
@@ -18,7 +19,6 @@ const EnhancedCRUDTable = React.memo(({
   itemsPerPage = 10,
   searchFields = [],
 }) => {
-  const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
 
@@ -52,11 +52,31 @@ const EnhancedCRUDTable = React.memo(({
     });
   }, [filteredData, sortConfig]);
 
-  const totalPages = Math.ceil(sortedData.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedData = sortedData.slice(startIndex, startIndex + itemsPerPage);
+  const {
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage: pageSize,
+    paginatedItems: paginatedData,
+    startItem,
+    endItem,
+    pageNumbers,
+    goToPage,
+    firstPage,
+    prevPage,
+    nextPage,
+    lastPage,
+    changeItemsPerPage,
+    resetPagination,
+  } = usePagination(sortedData, itemsPerPage);
 
-  React.useEffect(() => { setCurrentPage(1); }, [searchTerm]);
+  // Reset to the first page whenever the search query changes
+  React.useEffect(() => { resetPagination(); }, [searchTerm, resetPagination]);
+
+  // Keep page size in sync if the itemsPerPage prop changes (e.g. via settings)
+  React.useEffect(() => {
+    if (itemsPerPage !== pageSize) changeItemsPerPage(itemsPerPage);
+  }, [itemsPerPage, pageSize, changeItemsPerPage]);
 
   const handleSort = (key) => {
     setSortConfig(prev => {
@@ -148,7 +168,7 @@ const EnhancedCRUDTable = React.memo(({
             )}
           </div>
           <small className="text-muted" style={{ fontSize: '0.72rem' }}>
-            {sortedData.length > 0 ? `${startIndex + 1}-${Math.min(startIndex + itemsPerPage, sortedData.length)}` : '0'} of {sortedData.length}
+            {totalItems > 0 ? `${startItem}-${endItem}` : '0'} of {totalItems}
             {searchTerm && ` (${data.length} total)`}
           </small>
         </div>
@@ -242,28 +262,23 @@ const EnhancedCRUDTable = React.memo(({
       <div className="py-2 px-3 border-top bg-white flex-shrink-0">
         <div className="d-flex justify-content-between align-items-center">
           <small className="text-muted" style={{ fontSize: '0.7rem' }}>
-            {totalPages > 0 ? `Page ${currentPage} of ${totalPages}` : `${sortedData.length} items`}
+            {totalItems > 0 ? `Page ${currentPage} of ${totalPages}` : `${totalItems} items`}
           </small>
           {totalPages > 1 ? (
             <Pagination className="mb-0" size="sm">
-              <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
-              <Pagination.Prev onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} />
-              {[...Array(totalPages)].map((_, i) => {
-                const p = i + 1;
-                if (p === 1 || p === totalPages || (p >= currentPage - 1 && p <= currentPage + 1)) {
-                  return <Pagination.Item key={p} active={p === currentPage} onClick={() => setCurrentPage(p)}>{p}</Pagination.Item>;
-                }
-                if (p === currentPage - 2 || p === currentPage + 2) {
-                  return <Pagination.Ellipsis key={p} disabled />;
-                }
-                return null;
-              })}
-              <Pagination.Next onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} />
-              <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
+              <Pagination.First onClick={firstPage} disabled={currentPage === 1} />
+              <Pagination.Prev onClick={prevPage} disabled={currentPage === 1} />
+              {pageNumbers.map((p, i) => (
+                p === '...'
+                  ? <Pagination.Ellipsis key={`ellipsis-${i}`} disabled />
+                  : <Pagination.Item key={p} active={p === currentPage} onClick={() => goToPage(p)}>{p}</Pagination.Item>
+              ))}
+              <Pagination.Next onClick={nextPage} disabled={currentPage === totalPages} />
+              <Pagination.Last onClick={lastPage} disabled={currentPage === totalPages} />
             </Pagination>
           ) : (
             <small className="text-muted" style={{ fontSize: '0.7rem' }}>
-              {sortedData.length} of {data.length}
+              {totalItems} of {data.length}
             </small>
           )}
         </div>
