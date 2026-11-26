@@ -1,3 +1,8 @@
+## [v1.8.7] - 2026-11-26
+
+### Improvements
+- migrate to generic kit viewport hooks; keep app-level useResponsive
+
 ## [v1.8.6] - 2026-11-26
 
 ## [v1.8.5] - 2026-11-26
