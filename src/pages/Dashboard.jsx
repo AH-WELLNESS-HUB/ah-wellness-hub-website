@@ -10,7 +10,7 @@ import { fetchCheckups, selectAllCheckups } from '../store/checkupsSlice'
 import { fetchUsers, selectAllUsers } from '../store/usersSlice'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import DateRangePicker from '../components/ui/DateRangePicker'
-import { useResponsive } from '../hooks'
+import { useDevice } from '../hooks'
 import {
   calculateTotalRevenue,
   calculateTotalCommission,
@@ -38,7 +38,7 @@ function Dashboard() {
   const { loading: testsLoading } = useSelector(state => state.tests)
   const { loading: checkupsLoading } = useSelector(state => state.checkups)
   const { loading: usersLoading } = useSelector(state => state.users)
-  const { isMobile, isTablet } = useResponsive()
+  const { isMobile } = useDevice()
 
   const [dateRange, setDateRange] = useState(7) // Default: Past 7 days
   const [performanceRange, setPerformanceRange] = useState('month')
