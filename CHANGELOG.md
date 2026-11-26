@@ -1,3 +1,8 @@
+## [v1.8.8] - 2026-11-26
+
+### Improvements
+- replace app useResponsive wrapper with kit useDevice
+
 ## [v1.8.7] - 2026-11-26
 
 ### Improvements
